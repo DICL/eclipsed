@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+#
+require 'eclipsed'
+
+EclipseDaemon::CLI_driver.new input: ARGV
