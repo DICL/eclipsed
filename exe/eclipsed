@@ -2,4 +2,4 @@
 #
 require 'eclipsed'
 
-EclipseDaemon::CLI_driver.new input: ARGV
+Eclipsed::CLI_driver.new input: ARGV

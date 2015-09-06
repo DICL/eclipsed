@@ -6,13 +6,9 @@ require 'awesome_print'     # Pretty-printer
 require 'table_print'       # Pretty-printer
 
 module Eclipsed
-  CONFPATH = "@sysconfdirfull@/eclipse.json"
-  BINDIR   = "@bindirfull@"
-  LIBDIR   = "@libdirfull@"
-  CXX      = "@CXX@"
   module EclipseAPI  #{{{
     extend FFI::Library
-    ffi_lib "#{LIBDIR}/libecfs.so"
+    ffi_lib "libecfs.so"
     attach_function :hash_ruby, [ :string ], :uint32
   end
   #}}} 
@@ -31,6 +27,19 @@ module Eclipsed
     end
   end
   #}}}
+
+  class Core 
+    include Eclipsed
+    # Initialize {{{
+    def initialize 
+      @nodelist = File.open(find_confpath) { |f| JSON.parse(f.read) }['network']['nodes']
+      @verbose  = false
+    end
+
+    # }}}
+    # set_fs_variables {{{
+
+    # }}}
   # find_confpath {{{
   def find_confpath
     home = "#{ENV['HOME']}/.eclipse.json"
@@ -40,28 +49,16 @@ module Eclipsed
       return home
     elsif File.exists? etc
       return etc
-    else
-      return CONFPATH
     end 
   end
   # }}}
-
-  class Core 
-    include EclipseDaemon
-    # Initialize {{{
-    def initialize 
-      @nodelist = File.open(find_confpath) { |f| JSON.parse(f.read) }['network']['nodes']
-      @verbose  = false
-    end
-
-    # }}}
     # launch {{{
     def launch
       thr = print_async "Initializing framework..."
-      `#{BINDIR}/master &>/dev/null &`
+      `master &>/dev/null &`
       sleep 1
       @nodelist.each do |node|
-        system "ssh #{node} 'nohup #{BINDIR}/slave </dev/null &>/dev/null & exit'"
+        system "ssh #{node} 'nohup slave </dev/null &>/dev/null & exit'"
       end
       thr.exit
       print "\r"
@@ -75,7 +72,9 @@ module Eclipsed
       instance = [ ]
       in_english = { true => "Running", false => "Stopped" }
 
-      status = in_english[system "pgrep -u #{`whoami`.chomp} master &>/dev/null"]
+      cmd = "pgrep -u #{`whoami`.chomp} master &>/dev/null"
+      puts cmd if @verbose
+      status = in_english[system cmd]
       instance << { :host => "localhost", :status => status, :role => "master" }
 
       @nodelist.each do |node|
