@@ -13,8 +13,8 @@ Gem::Specification.new do |spec|
     #spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com' to prevent pushes to rubygems.org, or delete to allow pushes to any server."
   end
 
-  spec.summary       = %q{EclipseMR governor}
-  spec.description   = %q{Controls EclipseMR.}
+  spec.summary       = %q{EclipseDFS governor}
+  spec.description   = %q{Controls EclipseDFS.}
   spec.homepage      = "http://dicl.unist.ac.kr"
   spec.license       = "MIT"
 
