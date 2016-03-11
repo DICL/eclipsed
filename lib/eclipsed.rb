@@ -81,7 +81,7 @@ module Eclipsed
       status = nil
       @nodelist.each do |node|
         out = nil
-        cmd = "ssh #{node} \'pgrep -x eclipse_node &>/dev/null; echo $?\'"
+        cmd = "ssh #{node} \'pgrep -u #{`whoami`.chomp} -x eclipse_node &>/dev/null; echo $?\'"
         puts cmd if @verbose
         if `#{cmd}`.chomp == '0'
           out = true 
