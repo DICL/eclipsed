@@ -66,7 +66,14 @@ module Eclipsed
         end
         i = i + 1
       end
-      cmd  = "ssh #{@nodelist[index.to_i]} \'export PATH=\"#{ENV['PATH']}\"; gdb --args eclipse_node \'"
+      cmd  = "ssh #{@nodelist[index.to_i]} -t \'export PATH=\"#{ENV['PATH']}\"; gdb --args eclipse_node \'"
+      puts cmd 
+      exec cmd
+    end 
+    #}}}
+    # attach_at {{{
+    def attach_at(index) 
+      cmd  = "ssh #{@nodelist[index.to_i]} -t \"#{"sudo" if @sudo} gdb --pid `pgrep -u #{`whoami`.chomp} -x eclipse_node`\""
       puts cmd 
       exec cmd
     end 
@@ -137,10 +144,15 @@ module Eclipsed
         opts.separator "    status       Check the status of the network"
         opts.separator "    kill         kill application in each node"
         opts.separator ""
+        opts.separator "Debugging actions"
+        opts.separator "    debug_at [N]   Launch eclipseDFS with node N in gdb"  
+        opts.separator "    attach_at [N]  Attach gdb to the N node"
+        opts.separator ""
         opts.separator "Options"
         opts.on_tail("-h", "--help"   , "recursive this")         { puts opts; exit}
         opts.on_tail("-v", "--verbose" , "printout verbose info") { @verbose = true }
         opts.on_tail("-V", "--version" , "printout version") { puts opts.ver; exit }
+        opts.on_tail("-s", "--sudo" , "Use sudo for attach") { @sudo = true }
       end.parse! input
 
       case input.shift
@@ -149,6 +161,7 @@ module Eclipsed
       when 'status' then show
       when 'kill' then   kill input
       when 'debug_at' then debug_at input[0]
+      when 'attach_at' then attach_at input[0]
       when 'pry' then    pry
       else               raise "Not action given"
       end
