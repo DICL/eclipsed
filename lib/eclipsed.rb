@@ -73,7 +73,7 @@ module Eclipsed
     #}}}
     # attach_at {{{
     def attach_at(index) 
-      cmd  = "ssh #{@nodelist[index.to_i]} -t \"#{"sudo" if @sudo} gdb --pid `pgrep -u #{`whoami`.chomp} -x eclipse_node`\""
+      cmd  = "ssh #{@nodelist[index.to_i]} -t \"#{"sudo" if @sudo} gdb --pid \\`pgrep -u #{`whoami`.chomp} -x eclipse_node\\`\""
       puts cmd 
       exec cmd
     end 
