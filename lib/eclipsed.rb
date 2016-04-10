@@ -55,6 +55,13 @@ module Eclipsed
     end 
 
     #}}}
+    # restart {{{
+    def restart 
+      close
+      launch
+    end 
+
+    #}}}
     # debug_at {{{
     def debug_at(index) 
       i = 0
@@ -131,7 +138,6 @@ module Eclipsed
 
   class CLI_driver < Core
     def initialize input:  #{{{
-      @options = {}
       super()
       OptionParser.new do |opts|
         opts.banner = "eclipsed (Eclipse Daemon controler) is an script to manage the EclipseDFS\n" +
@@ -141,6 +147,7 @@ module Eclipsed
         opts.separator "Core actions"
         opts.separator "    launch       Create new Eclipse network"
         opts.separator "    close        Close the network"
+        opts.separator "    restart      Close and create the network"
         opts.separator "    status       Check the status of the network"
         opts.separator "    kill         kill application in each node"
         opts.separator ""
@@ -158,12 +165,13 @@ module Eclipsed
       case input.shift
       when 'launch' then launch
       when 'close' then  close
+      when 'restart' then restart 
       when 'status' then show
       when 'kill' then   kill input
       when 'debug_at' then debug_at input[0]
       when 'attach_at' then attach_at input[0]
       when 'pry' then    pry
-      else               raise "Not action given"
+      else            raise 'No valid argument, rerun with --help' 
       end
     end #}}}
   end
