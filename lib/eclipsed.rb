@@ -142,7 +142,7 @@ module Eclipsed
       OptionParser.new do |opts|
         opts.banner = "eclipsed (Eclipse Daemon controler) is an script to manage the EclipseDFS\n" +
           "Usage: eclipsed [options] <actions> [FILE]..."
-        opts.version = 1.0
+        opts.version = Eclipsed::VERSION
         opts.program_name = "Eclipse Launcher"
         opts.separator "Core actions"
         opts.separator "    launch       Create new Eclipse network"
