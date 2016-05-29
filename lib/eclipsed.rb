@@ -56,12 +56,16 @@ module Eclipsed
 
     #}}}
     # all_but {{{
-    def all_but(node) 
+    def all_but(index) 
       thr = print_async "Initializing framework..."
-      [@nodelist * [node]].each do |node|
-        cmd = "ssh #{node} 'export PATH=\"#{ENV['PATH']}\"; nohup eclipse_node </dev/null &>/dev/null &'"
-        puts cmd if @verbose
-        system cmd
+      i = 0
+      @nodelist.each do |node|
+        if i != index.to_i then
+          cmd = "ssh #{node} 'export PATH=\"#{ENV['PATH']}\"; nohup eclipse_node </dev/null &>/dev/null &'"
+          puts cmd if @verbose
+          system cmd
+        end
+        i = i + 1
       end
       thr.exit
       print "\r"
