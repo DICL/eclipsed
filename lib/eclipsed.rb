@@ -55,6 +55,19 @@ module Eclipsed
     end 
 
     #}}}
+    # all_but {{{
+    def all_but(node) 
+      thr = print_async "Initializing framework..."
+      [@nodelist * [node]].each do |node|
+        cmd = "ssh #{node} 'export PATH=\"#{ENV['PATH']}\"; nohup eclipse_node </dev/null &>/dev/null &'"
+        puts cmd if @verbose
+        system cmd
+      end
+      thr.exit
+      print "\r"
+    end 
+
+    #}}}
     # restart {{{
     def restart 
       close
@@ -154,6 +167,7 @@ module Eclipsed
         opts.separator "Debugging actions"
         opts.separator "    debug_at [N]   Launch eclipseDFS with node N in gdb"  
         opts.separator "    attach_at [N]  Attach gdb to the N node"
+        opts.separator "    all_but [N]    Launch all eclipse in all nodes but one"
         opts.separator ""
         opts.separator "Options"
         opts.on_tail("-h", "--help"   , "recursive this")         { puts opts; exit}
@@ -170,6 +184,7 @@ module Eclipsed
       when 'kill' then   kill input
       when 'debug_at' then debug_at input[0]
       when 'attach_at' then attach_at input[0]
+      when 'all_but' then all_but input[0]
       when 'pry' then    pry
       else            raise 'No valid argument, rerun with --help' 
       end
