@@ -26,6 +26,7 @@ module Eclipsed
     # Initialize {{{
     def initialize 
       @nodelist = File.open(find_confpath) { |f| JSON.parse(f.read) }['network']['nodes']
+      @app_dir = File.open(find_confpath) { |f| JSON.parse(f.read) }['path']['applications']
       @verbose  = false
     end
 
@@ -151,6 +152,15 @@ module Eclipsed
       require 'pry'
       binding.pry
     end #}}}
+    # submit {{{
+    def submit(input)
+      file_name = File.basename(input,File.extname(input)) 
+      system "g++ -c -std=c++14 -Wall -Werror -fpic #{input}"
+      system "gcc -shared -fPIC -o #{file_name}.so #{file_name}.o"
+      @nodelist.each do |node|
+        system "scp #{file_name}.so #{node}:#{@app_dir}/"
+      end
+    end #}}}
   end
 
   class CLI_driver < Core
@@ -167,6 +177,9 @@ module Eclipsed
         opts.separator "    restart      Close and create the network"
         opts.separator "    status       Check the status of the network"
         opts.separator "    kill         kill application in each node"
+        opts.separator ""
+        opts.separator "MapReduce actions"
+        opts.separator "    submit [app]   Submit application to VeloxMR system"
         opts.separator ""
         opts.separator "Debugging actions"
         opts.separator "    debug_at [N]   Launch eclipseDFS with node N in gdb"  
@@ -189,6 +202,7 @@ module Eclipsed
       when 'debug_at' then debug_at input[0]
       when 'attach_at' then attach_at input[0]
       when 'all_but' then all_but input[0]
+      when 'submit' then submit input[0]
       when 'pry' then    pry
       else            raise 'No valid argument, rerun with --help' 
       end
