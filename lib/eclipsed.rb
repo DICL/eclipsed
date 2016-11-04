@@ -161,6 +161,11 @@ module Eclipsed
         system "scp #{file_name}.so #{node}:#{@app_dir}/"
       end
     end #}}}
+    # compile {{{
+    def compile(input)
+      file_name = File.basename(input,File.extname(input)) 
+      system "g++ -std=c++14 -Wall -Werror -o #{file_name} #{file_name}.cc -lvdfs -lboost_system"
+    end #}}}
   end
 
   class CLI_driver < Core
@@ -180,6 +185,7 @@ module Eclipsed
         opts.separator ""
         opts.separator "MapReduce actions"
         opts.separator "    submit [app]   Submit application to VeloxMR system"
+        opts.separator "    compile [app]  Compile application client binary"
         opts.separator ""
         opts.separator "Debugging actions"
         opts.separator "    debug_at [N]   Launch eclipseDFS with node N in gdb"  
@@ -203,6 +209,7 @@ module Eclipsed
       when 'attach_at' then attach_at input[0]
       when 'all_but' then all_but input[0]
       when 'submit' then submit input[0]
+      when 'compile' then compile input[0]
       when 'pry' then    pry
       else            raise 'No valid argument, rerun with --help' 
       end
