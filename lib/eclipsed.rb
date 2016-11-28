@@ -23,26 +23,27 @@ module Eclipsed
 
   class Core 
     include Eclipsed
-    # Initialize {{{
-    def initialize 
-      @nodelist = File.open(find_confpath) { |f| JSON.parse(f.read) }['network']['nodes']
-      @app_dir = File.open(find_confpath) { |f| JSON.parse(f.read) }['path']['applications']
+    # Configure {{{
+    def configure
+      json_conf = File.open(find_confpath) { |f| JSON.parse(f.read) }
+      @nodelist = json_conf['network']['nodes']
+      @app_dir = json_conf['path']['applications']
       @verbose  = false
     end
 
     # }}}
-  # find_confpath {{{
-  def find_confpath
-    home = "#{ENV['HOME']}/.eclipse.json"
-    etc  = "/etc/.eclipse.json"
+    # find_confpath {{{
+    def find_confpath
+      home = "#{ENV['HOME']}/.eclipse.json"
+      etc  = "/etc/.eclipse.json"
 
-    if File.exists? home
-      return home
-    elsif File.exists? etc
-      return etc
-    end 
-  end
-  # }}}
+      if File.exists? home
+        return home
+      elsif File.exists? etc
+        return etc
+      end 
+    end
+    # }}}
     # launch {{{
     def launch
       thr = print_async "Initializing framework..."
@@ -169,8 +170,11 @@ module Eclipsed
   end
 
   class CLI_driver < Core
-    def initialize input:  #{{{
-      super()
+    def initialize input: #{{{
+      super
+
+      configure
+
       OptionParser.new do |opts|
         opts.banner = "eclipsed (Eclipse Daemon controler) is an script to manage the EclipseDFS\n" +
           "Usage: eclipsed [options] <actions> [FILE]..."
