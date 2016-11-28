@@ -171,9 +171,8 @@ module Eclipsed
 
   class CLI_driver < Core
     def initialize input: #{{{
-      super
-
-      configure
+      super()
+      configure()
 
       OptionParser.new do |opts|
         opts.banner = "eclipsed (Eclipse Daemon controler) is an script to manage the EclipseDFS\n" +
