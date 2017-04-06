@@ -28,6 +28,7 @@ module Eclipsed
       json_conf = File.open(find_confpath) { |f| JSON.parse(f.read) }
       @nodelist = json_conf['network']['nodes']
       @app_dir = json_conf['path']['applications']
+      #@lpath = json_conf['veloxd']['lflags']
       @verbose  = false
     end
 
@@ -165,7 +166,9 @@ module Eclipsed
     # compile {{{
     def compile(input)
       file_name = File.basename(input,File.extname(input)) 
-      system "g++ -std=c++14 -Wall -Werror -o #{file_name} #{file_name}.cc -lvdfs -lboost_system"
+      cmd = "g++ -std=c++14 -Wall -Werror -o #{file_name} #{file_name}.cc #{@lpath} -lvmr -lvdfs -lboost_system"
+      puts cmd if @verbose
+      system cmd
     end #}}}
   end
 
