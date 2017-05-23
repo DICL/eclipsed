@@ -49,7 +49,7 @@ module Eclipsed
     def launch
       thr = print_async "Initializing framework..."
       @nodelist.each do |node|
-        cmd = "ssh #{node} 'export PATH=\"#{ENV['PATH']}\"; nohup eclipse_node </dev/null &>/dev/null &'"
+        cmd = "ssh #{node} 'export PATH=\"#{ENV['PATH']}\"; export LD_LIBRARY_PATH=\"#{ENV['LD_LIBRARY_PATH']}\"; ulimit -Sn 4000; nohup eclipse_node </dev/null &>/dev/null &'"
         puts cmd if @verbose
         system cmd
       end
@@ -157,8 +157,8 @@ module Eclipsed
     # submit {{{
     def submit(input)
       file_name = File.basename(input,File.extname(input)) 
-      system "g++ -c -std=c++14 -Wall -Werror -fpic #{input}"
-      system "gcc -shared -fPIC -o #{file_name}.so #{file_name}.o"
+      system "g++ -c -std=c++14 -Wall -Werror -rdynamic -fpic #{input}"
+      system "gcc -shared -fPIC -rdynamic -o #{file_name}.so #{file_name}.o"
       @nodelist.each do |node|
         system "scp #{file_name}.so #{node}:#{@app_dir}/"
       end
