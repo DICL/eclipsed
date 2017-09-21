@@ -135,8 +135,11 @@ module Eclipsed
     # close {{{
     def close
       thr = print_async "Stopping framework..."
+      user = `whoami`.chomp
       @nodelist.each do |node|
-        `ssh #{node} pkill -u #{`whoami`.chomp} eclipse_node`
+        cmd = "ssh #{node} 'kill -s SIGKILL $(ps -o pgrp= -p $(pgrep -u vicente eclipse_node) | xargs echo - | tr -d [:blank:])'"
+        puts cmd if @verbose
+        system cmd
       end 
       thr.exit
       print "\r"
