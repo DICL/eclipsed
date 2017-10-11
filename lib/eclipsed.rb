@@ -51,7 +51,7 @@ module Eclipsed
       @nodelist.each do |node|
         cmd = "ssh #{node} 'export PATH=\"#{ENV['PATH']}\"; export LD_LIBRARY_PATH=\"#{ENV['LD_LIBRARY_PATH']}\"; ulimit -Sn 4000; nohup eclipse_node </dev/null &>/dev/null &'"
         puts cmd if @verbose
-        system cmd
+        system cmd unless @dryrun
       end
       thr.exit
       print "\r"
@@ -66,7 +66,7 @@ module Eclipsed
         if i != index.to_i then
           cmd = "ssh #{node} 'export PATH=\"#{ENV['PATH']}\"; nohup eclipse_node </dev/null &>/dev/null &'"
           puts cmd if @verbose
-          system cmd
+          system cmd unless @dryrun
         end
         i = i + 1
       end
@@ -94,15 +94,15 @@ module Eclipsed
         i = i + 1
       end
       cmd  = "ssh #{@nodelist[index.to_i]} -t \'export PATH=\"#{ENV['PATH']}\"; gdb --args eclipse_node \'"
-      puts cmd 
-      exec cmd
+      puts cmd if @verbose
+      exec cmd unless @dryrun
     end 
     #}}}
     # attach_at {{{
     def attach_at(index) 
       cmd  = "ssh #{@nodelist[index.to_i]} -t \"#{"sudo" if @sudo} gdb --pid \\`pgrep -u #{`whoami`.chomp} -x eclipse_node\\`\""
-      puts cmd 
-      exec cmd
+      puts cmd if @verbose
+      exec cmd unless @dryrun
     end 
     #}}}
     # show {{{
@@ -137,9 +137,9 @@ module Eclipsed
       thr = print_async "Stopping framework..."
       user = `whoami`.chomp
       @nodelist.each do |node|
-        cmd = "ssh #{node} 'kill -s SIGKILL $(ps -o pgrp= -p $(pgrep -u #{`whoami`.chomp} -x eclipse_node) | xargs echo - | tr -d [:blank:])'"
+        cmd = "ssh #{node} 'pgrep -u #{user} eclipse_node &>/dev/null && kill -s SIGKILL $(ps -o pgrp= -p $(pgrep -u #{user} -x eclipse_node) | xargs echo - | tr -d [:blank:])'"
         puts cmd if @verbose
-        system cmd
+        system cmd unless @dryrun
       end 
       thr.exit
       print "\r"
@@ -149,7 +149,7 @@ module Eclipsed
       @nodelist.each do |node|
         cmd = "ssh #{node} \'pkill -u #{`whoami`.chomp} #{input.join}\'"
         puts cmd if @verbose
-        system cmd
+        system cmd unless @dryrun
       end
     end #}}}
     # pry {{{
@@ -171,7 +171,7 @@ module Eclipsed
       file_name = File.basename(input,File.extname(input)) 
       cmd = "g++ -std=c++14 -Wall -Werror -o #{file_name} #{file_name}.cc #{@lpath} -lvmr -lvdfs -lboost_system"
       puts cmd if @verbose
-      system cmd
+      system cmd unless @dryrun
     end #}}}
   end
 
@@ -204,6 +204,7 @@ module Eclipsed
         opts.separator "Options"
         opts.on_tail("-h", "--help"   , "recursive this")         { puts opts; exit}
         opts.on_tail("-v", "--verbose" , "printout verbose info") { @verbose = true }
+        opts.on_tail("-n", "--dry-run" , "Show what its about to do") { @dryrun = true }
         opts.on_tail("-V", "--version" , "printout version") { puts opts.ver; exit }
         opts.on_tail("-s", "--sudo" , "Use sudo for attach") { @sudo = true }
       end.parse! input
