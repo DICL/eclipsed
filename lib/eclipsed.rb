@@ -180,7 +180,7 @@ module Eclipsed
       super()
       configure()
 
-      OptionParser.new do |opts|
+      opt = OptionParser.new do |opts|
         opts.banner = "eclipsed (Eclipse Daemon controler) is an script to manage the EclipseDFS\n" +
           "Usage: eclipsed [options] <actions> [FILE]..."
         opts.version = Eclipsed::VERSION
@@ -207,7 +207,14 @@ module Eclipsed
         opts.on_tail("-n", "--dry-run" , "Show what its about to do") { @dryrun = true }
         opts.on_tail("-V", "--version" , "printout version") { puts opts.ver; exit }
         opts.on_tail("-s", "--sudo" , "Use sudo for attach") { @sudo = true }
-      end.parse! input
+      end
+      opt.parse! input
+
+      if input.empty?
+        puts opt.help 
+        exit
+      end
+
 
       case input.shift
       when 'launch' then launch
