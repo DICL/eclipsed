@@ -4,6 +4,13 @@ Welcome to your new gem! In this directory, you'll find the files you need to be
 
 TODO: Delete this and the text above, and describe your gem
 
+# IMPORTANT
+To test your changes in eclipsed before installing you can just easily use this command
+
+```sh
+ruby -I./lib exe/eclipsed
+```
+
 ## Installation
 
 Add this line to your application's Gemfile:
